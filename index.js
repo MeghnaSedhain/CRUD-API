@@ -1,29 +1,31 @@
 import express from "express";
-import mongoose from "mongoose";
-import bodyParser from "body-parser";
 import dotenv from "dotenv";
-import route from "./routes/userRoute.js";
-import productRoute from "./routes/productRoute.js";
-
+import mongoose from "mongoose";
+import userRoute from "./routes/userRoute.js";
 
 dotenv.config();
 
 const app = express();
 
-app.use(bodyParser.json());
+// MIDDLEWARE
+app.use(express.json());
 
-const PORT = process.env.PORT || 5000;
-const MONGOURL = process.env.MONGO_URL;
+// ROUTES
+app.use("/api/users", userRoute);
 
-mongoose.connect(MONGOURL)
-.then(() => {
-    console.log("Database connected successfully.");
+// DATABASE CONNECTION
+mongoose.connect(process.env.MONGO_URL)
+  .then(() => {
+    console.log("MongoDB Connected");
+
+    // START SERVER ONLY AFTER DB CONNECTS
+    const PORT = process.env.PORT || 5000;
 
     app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
+      console.log(`Server running on port ${PORT}`);
     });
-})
-.catch((error) => console.log(error));
 
-app.use("/api/user", route);
-app.use("/api/products", productRoute);
+  })
+  .catch((err) => {
+    console.log("Database connection failed:", err);
+  });
